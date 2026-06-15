@@ -308,6 +308,13 @@
 <!-- add-caption-style stub so app.js toggleEl calls don't error on mobile.html -->
 <div id="add-caption-style" style="display:none"></div>
 
+<!-- Invisible canvas text editor: keyboard attaches here, no focus jump -->
+<textarea id="canvas-edit"
+  oninput="onCanvasEditInput()"
+  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+></textarea>
+<button id="edit-done-btn" onclick="closeCanvasEdit()">✓ Done</button>
+
 <input type="file" id="file-input" accept="image/*" style="display:none">
 <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none">
 

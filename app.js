@@ -626,7 +626,7 @@ function selectText(id) {
 
   if (window.innerWidth <= 768) {
     if (document.body.dataset.mobile) {
-      openMobileEditBar(t); // canvas is sticky at top — bar won't cover it
+      openCanvasEdit(t); // invisible textarea over the label — no focus jump
     } else {
       document.getElementById('props-sec').scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => document.getElementById('p-text').focus(), 300);
@@ -663,6 +663,7 @@ function deleteSelected() {
   texts = texts.filter(x => x.id !== selId);
   selId = null;
   closeMobileEditBar();
+  closeCanvasEdit();
   document.getElementById('props-sec').style.display = 'none';
   if (texts.length === 0) document.getElementById('texts-sec').style.display = 'none';
   refreshList();
@@ -739,6 +740,7 @@ function handlePointerDown(cx, cy) {
     selId = null;
     selPhotoId = null;
     closeMobileEditBar();
+    closeCanvasEdit();
     document.getElementById('props-sec').style.display = 'none';
     document.getElementById('photo-props-sec').style.display = 'none';
     refreshList();
@@ -754,6 +756,7 @@ function handlePointerDown(cx, cy) {
     } else {
       selId = null;
       closeMobileEditBar();
+      closeCanvasEdit();
       document.getElementById('props-sec').style.display = 'none';
       refreshList();
       render();
@@ -1063,6 +1066,46 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowDown')  { p.y += nudge; updatePhotoPropFields(); render(); e.preventDefault(); }
   }
 });
+
+/* ============================================================
+   Direct canvas text editing (mobile.html)
+   ============================================================ */
+function openCanvasEdit(t) {
+  const editor  = document.getElementById('canvas-edit');
+  const doneBtn = document.getElementById('edit-done-btn');
+  if (!editor) { openMobileEditBar(t); return; }
+
+  // Position the invisible textarea exactly over the text on screen
+  const rect = canvas.getBoundingClientRect();
+  const sx = rect.left + (t.x / canvas.width)  * rect.width;
+  const sy = rect.top  + (t.y / canvas.height) * rect.height;
+  editor.style.left = Math.max(rect.left, Math.min(sx, rect.right  - 2)) + 'px';
+  editor.style.top  = Math.max(rect.top,  Math.min(sy, rect.bottom - 2)) + 'px';
+
+  editor.value = t.text;
+  editor.classList.add('active');
+  editor.focus();
+
+  if (doneBtn) {
+    doneBtn.style.top = (rect.bottom - 50) + 'px';
+    doneBtn.classList.add('active');
+  }
+}
+
+function closeCanvasEdit() {
+  const editor  = document.getElementById('canvas-edit');
+  const doneBtn = document.getElementById('edit-done-btn');
+  if (editor)  { editor.blur(); editor.classList.remove('active'); }
+  if (doneBtn) doneBtn.classList.remove('active');
+}
+
+function onCanvasEditInput() {
+  const val = document.getElementById('canvas-edit').value;
+  setProp('text', val);
+  // keep sidebar textarea in sync if visible
+  const sidebar = document.getElementById('p-text');
+  if (sidebar) sidebar.value = val;
+}
 
 /* ============================================================
    Mobile edit bar

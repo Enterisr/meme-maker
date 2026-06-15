@@ -176,6 +176,44 @@ input[type=range]  { width: 100%; accent-color: #4a9eff; }
 .url-row input  { flex: 1; }
 .url-row button { min-height: 44px; }
 
+/* ── Invisible canvas text editor ───────────────────────────── */
+#canvas-edit {
+  position: fixed;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: transparent;
+  font-size: 16px; /* prevent iOS zoom */
+  resize: none;
+  z-index: 150;
+  pointer-events: none;
+  direction: rtl;
+}
+#canvas-edit.active { pointer-events: auto; }
+
+#edit-done-btn {
+  display: none;
+  position: fixed;
+  right: 10px;
+  z-index: 150;
+  background: #1d7a45;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,.5);
+  cursor: pointer;
+}
+#edit-done-btn.active { display: block; }
+
 /* ── Mobile bottom edit bar ─────────────────────────────────── */
 /* Canvas is sticky at top so this bar NEVER covers the canvas  */
 #mobile-edit-bar {
