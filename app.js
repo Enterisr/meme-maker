@@ -622,7 +622,10 @@ function selectText(id) {
   document.getElementById('btn-upper').classList.toggle('active',  !!t.upper);
   highlightAlign(t.align === 'right' ? 'r' : t.align === 'left' ? 'l' : 'c');
 
-  if (window.innerWidth <= 768) openMobileEditBar(t);
+  if (window.innerWidth <= 768) {
+    document.getElementById('props-sec').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => document.getElementById('p-text').focus(), 300);
+  }
 
   refreshList();
   render();
