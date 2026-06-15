@@ -25,6 +25,37 @@
     min-height: 0;
   }
 
+  /* Image upload section moved below canvas by JS — order:3 */
+  #img-upload-sec {
+    order: 3;
+    width: 100%;
+    border-radius: 0;
+    background: #1e1e1e;
+    border-top: 1px solid #2e2e2e;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Compact drop zone — no big box */
+  #img-upload-sec .drop-zone {
+    padding: 9px 14px;
+    border-radius: 6px;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 13px;
+    line-height: 1;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  #img-upload-sec .drop-zone .icon { font-size: 18px; display: inline; margin: 0; }
+  #img-upload-sec .sec-title { display: none; }
+  #img-upload-sec #img-controls button { width: 100%; }
+
   #canvas-wrap { width: 100%; }
 
   canvas {
@@ -37,8 +68,9 @@
   #placeholder-msg { font-size: 15px; padding: 0 20px; }
   #placeholder-msg span { font-size: 36px; }
 
-  /* Hide title to save space */
-  .app-title, .app-sub { display: none; }
+  /* Hide title — more specific selectors to override */
+  #sidebar .app-title,
+  #sidebar .app-sub { display: none !important; }
 
   #sidebar-inner { padding: 10px; }
 

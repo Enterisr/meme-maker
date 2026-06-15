@@ -45,6 +45,8 @@ function setMode(m) {
   mode = m;
   document.getElementById('single-sections').style.display  = m === 'single'  ? '' : 'none';
   document.getElementById('collage-sections').style.display = m === 'collage' ? '' : 'none';
+  const imgSec = document.getElementById('img-upload-sec');
+  if (imgSec) imgSec.style.display = m === 'single' ? '' : 'none';
   document.getElementById('tab-single').classList.toggle('active',  m === 'single');
   document.getElementById('tab-collage').classList.toggle('active', m === 'collage');
 
@@ -1069,6 +1071,30 @@ function toggleEl(id, btn) {
     ? btn.textContent.replace('▾', '▲')
     : btn.textContent.replace('▲', '▾');
 }
+
+/* ============================================================
+   Mobile layout adjustment — move image upload below canvas
+   ============================================================ */
+function adjustMobileLayout() {
+  const imgSec = document.getElementById('img-upload-sec');
+  const main   = document.getElementById('main');
+  if (!imgSec || !main) return;
+
+  if (window.innerWidth <= 768) {
+    if (imgSec.parentElement !== document.body) {
+      document.body.insertBefore(imgSec, main.nextSibling);
+    }
+  } else {
+    // Restore into single-sections on desktop if it was moved
+    const singleSec = document.getElementById('single-sections');
+    if (singleSec && imgSec.parentElement !== singleSec) {
+      singleSec.insertBefore(imgSec, singleSec.firstChild);
+    }
+  }
+}
+
+window.addEventListener('DOMContentLoaded', adjustMobileLayout);
+window.addEventListener('resize', adjustMobileLayout);
 
 /* ============================================================
    Init
