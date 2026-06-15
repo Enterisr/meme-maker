@@ -832,19 +832,74 @@ canvas.addEventListener('mousemove',  e => { const { cx, cy } = canvasXY(e); han
 canvas.addEventListener('mouseup',    handlePointerUp);
 canvas.addEventListener('mouseleave', handlePointerUp);
 
+/* ── Pinch-to-resize state ───────────────────────────────────── */
+let pinch = { on: false, dist: 0, photoId: null, origW: 0, origH: 0, origX: 0, origY: 0 };
+
+function pinchDist(e) {
+  const dx = e.touches[0].clientX - e.touches[1].clientX;
+  const dy = e.touches[0].clientY - e.touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function pinchMid(e) {
+  return {
+    clientX: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+    clientY: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+  };
+}
+
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
+
+  if (e.touches.length === 2 && mode === 'collage') {
+    const { cx, cy } = canvasXY(pinchMid(e));
+    const targetId = selPhotoId !== null ? selPhotoId : hitPhoto(cx, cy);
+    if (targetId !== null) {
+      const p = photos.find(x => x.id === targetId);
+      if (p) {
+        selectPhoto(targetId);
+        pinch = { on: true, dist: pinchDist(e), photoId: targetId,
+                  origW: p.w, origH: p.h, origX: p.x, origY: p.y };
+        drag.on = false;
+        return;
+      }
+    }
+  }
+
+  pinch.on = false;
   const { cx, cy } = canvasXY(e.touches[0]);
   handlePointerDown(cx, cy);
 }, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
-  const { cx, cy } = canvasXY(e.touches[0]);
-  handlePointerMove(cx, cy);
+
+  if (pinch.on && e.touches.length === 2) {
+    const scale = pinchDist(e) / pinch.dist;
+    const p = photos.find(x => x.id === pinch.photoId);
+    if (p) {
+      const cx = pinch.origX + pinch.origW / 2;
+      const cy = pinch.origY + pinch.origH / 2;
+      p.w = Math.max(20, Math.round(pinch.origW * scale));
+      p.h = Math.max(20, Math.round(pinch.origH * scale));
+      p.x = Math.round(cx - p.w / 2);
+      p.y = Math.round(cy - p.h / 2);
+      updatePhotoPropFields();
+      render();
+    }
+    return;
+  }
+
+  if (e.touches.length === 1) {
+    const { cx, cy } = canvasXY(e.touches[0]);
+    handlePointerMove(cx, cy);
+  }
 }, { passive: false });
 
-canvas.addEventListener('touchend', handlePointerUp);
+canvas.addEventListener('touchend', e => {
+  if (e.touches.length < 2) pinch.on = false;
+  if (e.touches.length === 0) handlePointerUp();
+});
 
 /* ============================================================
    Download (regular — fails on tainted canvas)
