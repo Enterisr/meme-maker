@@ -236,3 +236,9 @@ button.sm { padding: 5px 9px; font-size: 12px; }
 
 .url-row { display: flex; gap: 6px; align-items: stretch; }
 .url-row input { flex: 1; direction: ltr; font-size: 12px; }
+
+/* Mobile-only elements hidden on desktop */
+.mobile-only { display: none; }
+#mobile-edit-bar { display: none; }
+#add-caption-style { display: flex; flex-direction: column; gap: 8px; }
+.mobile-sec-body { display: flex; flex-direction: column; gap: 8px; }

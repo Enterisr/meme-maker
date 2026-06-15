@@ -622,6 +622,8 @@ function selectText(id) {
   document.getElementById('btn-upper').classList.toggle('active',  !!t.upper);
   highlightAlign(t.align === 'right' ? 'r' : t.align === 'left' ? 'l' : 'c');
 
+  if (window.innerWidth <= 768) openMobileEditBar(t);
+
   refreshList();
   render();
 }
@@ -651,6 +653,7 @@ function highlightAlign(which) {
 function deleteSelected() {
   texts = texts.filter(x => x.id !== selId);
   selId = null;
+  closeMobileEditBar();
   document.getElementById('props-sec').style.display = 'none';
   if (texts.length === 0) document.getElementById('texts-sec').style.display = 'none';
   refreshList();
@@ -726,6 +729,7 @@ function handlePointerDown(cx, cy) {
 
     selId = null;
     selPhotoId = null;
+    closeMobileEditBar();
     document.getElementById('props-sec').style.display = 'none';
     document.getElementById('photo-props-sec').style.display = 'none';
     refreshList();
@@ -740,6 +744,7 @@ function handlePointerDown(cx, cy) {
       drag = { on: true, type: 'text', id: hit, ox: cx - t.x, oy: cy - t.y };
     } else {
       selId = null;
+      closeMobileEditBar();
       document.getElementById('props-sec').style.display = 'none';
       refreshList();
       render();
@@ -994,6 +999,73 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowDown')  { p.y += nudge; updatePhotoPropFields(); render(); e.preventDefault(); }
   }
 });
+
+/* ============================================================
+   Mobile edit bar
+   ============================================================ */
+function openMobileEditBar(t) {
+  const bar = document.getElementById('mobile-edit-bar');
+  if (!bar) return;
+  bar.classList.add('open');
+  const input = document.getElementById('mobile-text-input');
+  input.value = t.text;
+  document.getElementById('m-font').value         = t.font        || 'Rubik';
+  document.getElementById('m-size').value         = t.size        || 60;
+  document.getElementById('m-color').value        = t.color       || '#ffffff';
+  document.getElementById('m-stroke-color').value = t.strokeColor || '#000000';
+  document.getElementById('m-sw').value           = t.strokeWidth || 4;
+  syncMobileStyleBtns();
+  setTimeout(() => input.focus(), 60);
+}
+
+function closeMobileEditBar() {
+  const bar = document.getElementById('mobile-edit-bar');
+  if (bar) bar.classList.remove('open');
+  const panel = document.getElementById('mobile-style-panel');
+  if (panel) {
+    panel.classList.remove('open');
+    const btn = document.querySelector('.mobile-style-btn');
+    if (btn) btn.textContent = '⚙ Style ▾';
+  }
+}
+
+function syncMobileText() {
+  const val = document.getElementById('mobile-text-input').value;
+  setProp('text', val);
+  const sidebar = document.getElementById('p-text');
+  if (sidebar) sidebar.value = val;
+}
+
+function syncMobileStyleBtns() {
+  const t = texts.find(x => x.id === selId);
+  if (!t) return;
+  document.getElementById('m-btn-bold').classList.toggle('active',   !!t.bold);
+  document.getElementById('m-btn-shadow').classList.toggle('active', !!t.shadow);
+  document.getElementById('m-btn-upper').classList.toggle('active',  !!t.upper);
+}
+
+function toggleMobileStyle() {
+  const panel = document.getElementById('mobile-style-panel');
+  const btn   = document.querySelector('.mobile-style-btn');
+  const open  = panel.classList.toggle('open');
+  if (btn) btn.textContent = open ? '⚙ Style ▲' : '⚙ Style ▾';
+}
+
+function toggleMobileSec(titleEl) {
+  if (window.innerWidth > 768) return;
+  const sec = titleEl.closest('.sec');
+  sec.classList.toggle('open');
+  const chevron = titleEl.querySelector('.mobile-chevron');
+  if (chevron) chevron.textContent = sec.classList.contains('open') ? '▴' : '▾';
+}
+
+function toggleEl(id, btn) {
+  const el   = document.getElementById(id);
+  const open = el.classList.toggle('open');
+  if (btn) btn.textContent = open
+    ? btn.textContent.replace('▾', '▲')
+    : btn.textContent.replace('▲', '▾');
+}
 
 /* ============================================================
    Init

@@ -45,36 +45,38 @@
       </div>
 
       <div class="sec" id="caption-sec" style="display:none">
-        <div class="sec-title">Caption Bars</div>
-        <div>
-          <label class="lbl">Top Text</label>
-          <textarea id="cap-top" oninput="render()" placeholder="Leave empty to skip"></textarea>
-        </div>
-        <div class="row">
-          <label class="lbl">BG:</label>
-          <input type="color" id="cap-top-bg" value="#ffffff" oninput="render()">
-          <label class="lbl">Text:</label>
-          <input type="color" id="cap-top-fg" value="#000000" oninput="render()">
-        </div>
-        <div class="sep"></div>
-        <div>
-          <label class="lbl">Bottom Text</label>
-          <textarea id="cap-bot" oninput="render()" placeholder="Leave empty to skip"></textarea>
-        </div>
-        <div class="row">
-          <label class="lbl">BG:</label>
-          <input type="color" id="cap-bot-bg" value="#ffffff" oninput="render()">
-          <label class="lbl">Text:</label>
-          <input type="color" id="cap-bot-fg" value="#000000" oninput="render()">
-        </div>
-        <div class="sep"></div>
-        <div class="range-row">
-          <div class="range-label">
-            <span>Bar Font Size</span>
-            <span id="cap-size-val">42px</span>
+        <div class="sec-title mobile-toggle-title" onclick="toggleMobileSec(this)">Caption Bars <span class="mobile-chevron">▾</span></div>
+        <div class="mobile-sec-body">
+          <div>
+            <label class="lbl">Top Text</label>
+            <textarea id="cap-top" oninput="render()" placeholder="Leave empty to skip"></textarea>
           </div>
-          <input type="range" id="cap-size" min="16" max="90" value="42"
-            oninput="document.getElementById('cap-size-val').textContent=this.value+'px';render()">
+          <div class="row">
+            <label class="lbl">BG:</label>
+            <input type="color" id="cap-top-bg" value="#ffffff" oninput="render()">
+            <label class="lbl">Text:</label>
+            <input type="color" id="cap-top-fg" value="#000000" oninput="render()">
+          </div>
+          <div class="sep"></div>
+          <div>
+            <label class="lbl">Bottom Text</label>
+            <textarea id="cap-bot" oninput="render()" placeholder="Leave empty to skip"></textarea>
+          </div>
+          <div class="row">
+            <label class="lbl">BG:</label>
+            <input type="color" id="cap-bot-bg" value="#ffffff" oninput="render()">
+            <label class="lbl">Text:</label>
+            <input type="color" id="cap-bot-fg" value="#000000" oninput="render()">
+          </div>
+          <div class="sep"></div>
+          <div class="range-row">
+            <div class="range-label">
+              <span>Bar Font Size</span>
+              <span id="cap-size-val">42px</span>
+            </div>
+            <input type="range" id="cap-size" min="16" max="90" value="42"
+              oninput="document.getElementById('cap-size-val').textContent=this.value+'px';render()">
+          </div>
         </div>
       </div>
     </div>
@@ -169,30 +171,33 @@
         <label class="lbl">Text</label>
         <textarea id="new-text" placeholder="Type here..."></textarea>
       </div>
-      <div class="row">
-        <div class="col">
-          <label class="lbl">Font</label>
-          <select id="new-font">
-            <option value="Rubik">Rubik (Recommended)</option>
-            <option value="Heebo">Heebo</option>
-            <option value="Frank Ruhl Libre">Frank Ruhl Libre</option>
-            <option value="Impact">Impact</option>
-            <option value="Arial Black">Arial Black</option>
-          </select>
+      <button class="mobile-only" onclick="toggleEl('add-caption-style',this)">⚙ Style ▾</button>
+      <div id="add-caption-style">
+        <div class="row">
+          <div class="col">
+            <label class="lbl">Font</label>
+            <select id="new-font">
+              <option value="Rubik">Rubik (Recommended)</option>
+              <option value="Heebo">Heebo</option>
+              <option value="Frank Ruhl Libre">Frank Ruhl Libre</option>
+              <option value="Impact">Impact</option>
+              <option value="Arial Black">Arial Black</option>
+            </select>
+          </div>
+          <div class="col">
+            <label class="lbl">Size</label>
+            <input type="number" id="new-size" value="60" min="10" max="400">
+          </div>
         </div>
-        <div class="col">
-          <label class="lbl">Size</label>
-          <input type="number" id="new-size" value="60" min="10" max="400">
-        </div>
-      </div>
-      <div class="row">
-        <label class="lbl">Color:</label>
-        <input type="color" id="new-color" value="#ffffff">
-        <label class="lbl">Stroke:</label>
-        <input type="color" id="new-stroke" value="#000000">
-        <div class="col" style="flex:1">
-          <label class="lbl">Stroke Width</label>
-          <input type="number" id="new-sw" value="4" min="0" max="30">
+        <div class="row">
+          <label class="lbl">Color:</label>
+          <input type="color" id="new-color" value="#ffffff">
+          <label class="lbl">Stroke:</label>
+          <input type="color" id="new-stroke" value="#000000">
+          <div class="col" style="flex:1">
+            <label class="lbl">Stroke Width</label>
+            <input type="number" id="new-sw" value="4" min="0" max="30">
+          </div>
         </div>
       </div>
       <button class="pri" onclick="addText()" style="width:100%">+ Add Caption</button>
@@ -276,6 +281,49 @@
 
 <input type="file" id="file-input" accept="image/*" style="display:none">
 <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none">
+
+<!-- Mobile bottom edit bar — shown when a caption is tapped on canvas -->
+<div id="mobile-edit-bar">
+  <div class="meb-header">
+    <span class="meb-title">Edit Caption</span>
+    <button class="meb-done" onclick="closeMobileEditBar()">Done ✓</button>
+  </div>
+  <textarea id="mobile-text-input" oninput="syncMobileText()" placeholder="Type here..."></textarea>
+  <button class="mobile-style-btn" onclick="toggleMobileStyle()">⚙ Style ▾</button>
+  <div id="mobile-style-panel">
+    <div class="row">
+      <div class="col" style="flex:1">
+        <label class="lbl">Font</label>
+        <select id="m-font" onchange="setProp('font',this.value)">
+          <option value="Rubik">Rubik</option>
+          <option value="Heebo">Heebo</option>
+          <option value="Frank Ruhl Libre">Frank Ruhl Libre</option>
+          <option value="Impact">Impact</option>
+          <option value="Arial Black">Arial Black</option>
+        </select>
+      </div>
+      <div class="col">
+        <label class="lbl">Size</label>
+        <input type="number" id="m-size" min="10" max="400" oninput="setProp('size',+this.value)">
+      </div>
+    </div>
+    <div class="row">
+      <label class="lbl">Color:</label>
+      <input type="color" id="m-color" oninput="setProp('color',this.value)">
+      <label class="lbl">Stroke:</label>
+      <input type="color" id="m-stroke-color" oninput="setProp('strokeColor',this.value)">
+      <div class="col" style="flex:1">
+        <label class="lbl">Stroke W</label>
+        <input type="number" id="m-sw" min="0" max="30" oninput="setProp('strokeWidth',+this.value)">
+      </div>
+    </div>
+    <div class="row">
+      <button id="m-btn-bold"   onclick="toggleProp('bold');syncMobileStyleBtns()"   style="flex:1">B Bold</button>
+      <button id="m-btn-shadow" onclick="toggleProp('shadow');syncMobileStyleBtns()" style="flex:1">💡 Shadow</button>
+      <button id="m-btn-upper"  onclick="toggleProp('upper');syncMobileStyleBtns()"  style="flex:1">AA Upper</button>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>
