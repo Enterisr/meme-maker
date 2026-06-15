@@ -1,0 +1,141 @@
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  #main {
+    order: 1;
+    width: 100%;
+    padding: 10px;
+    flex: none;
+    min-height: 0;
+  }
+
+  #canvas-wrap {
+    width: 100%;
+  }
+
+  canvas {
+    max-width: 100%;
+    max-height: 50vh;
+    width: 100%;
+    height: auto;
+  }
+
+  #placeholder-msg {
+    font-size: 15px;
+    padding: 0 20px;
+  }
+  #placeholder-msg span {
+    font-size: 36px;
+  }
+
+  #sidebar {
+    order: 2;
+    width: 100%;
+    min-width: unset;
+    border-left: none;
+    border-top: 1px solid #2e2e2e;
+    overflow-y: visible;
+  }
+
+  #sidebar-inner {
+    padding: 12px;
+  }
+
+  .app-title {
+    font-size: 20px;
+  }
+
+  /* Bigger tap targets */
+  button {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  button.sm {
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  button.grn {
+    min-height: 52px;
+    padding: 13px;
+    font-size: 16px;
+  }
+
+  button.red {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .mode-tabs button {
+    min-height: 44px;
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+
+  .align-group button {
+    min-height: 44px;
+  }
+
+  .preset-row button {
+    min-height: 38px;
+    font-size: 12px;
+  }
+
+  /* Prevent iOS zoom on input focus */
+  input[type=text],
+  input[type=number],
+  select,
+  textarea {
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  input[type=number] {
+    width: 72px;
+  }
+
+  textarea {
+    min-height: 72px;
+  }
+
+  input[type=color] {
+    width: 44px;
+    height: 40px;
+  }
+
+  .drop-zone {
+    padding: 28px 14px;
+    font-size: 15px;
+  }
+  .drop-zone .icon {
+    font-size: 34px;
+  }
+
+  /* Photo X/Y/W/H fields: 2-column grid */
+  #photo-props-sec .row:first-child {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  #photo-props-sec .col {
+    width: 100%;
+  }
+  #photo-props-sec .col input[type=number] {
+    width: 100%;
+  }
+
+  .url-row button {
+    min-height: 44px;
+    white-space: nowrap;
+  }
+}

@@ -369,7 +369,10 @@ function resizeCursor(corner) {
    ============================================================ */
 function computeDisplaySize() {
   if (!img) return;
-  const maxW  = Math.min(1200, window.innerWidth - 340);
+  const isMobile = window.innerWidth <= 768;
+  const maxW = isMobile
+    ? window.innerWidth - 24
+    : Math.min(1200, window.innerWidth - 340);
   const scale = Math.min(1, maxW / imgNW);
   displayW = Math.round(imgNW * scale);
   displayH = Math.round(imgNH * scale);
@@ -688,13 +691,10 @@ function hitTest(cx, cy) {
 }
 
 /* ============================================================
-   Canvas mouse interaction
+   Canvas pointer interaction (shared by mouse + touch)
    ============================================================ */
-canvas.addEventListener('mousedown', e => {
-  const { cx, cy } = canvasXY(e);
-
+function handlePointerDown(cx, cy) {
   if (mode === 'collage') {
-    // 1. resize handles (highest priority)
     const hh = hitHandle(cx, cy);
     if (hh) {
       const p = photos.find(x => x.id === hh.photoId);
@@ -705,7 +705,6 @@ canvas.addEventListener('mousedown', e => {
       }
     }
 
-    // 2. text hit
     const textHit = hitTest(cx, cy);
     if (textHit !== null) {
       selectText(textHit);
@@ -714,7 +713,6 @@ canvas.addEventListener('mousedown', e => {
       return;
     }
 
-    // 3. photo hit
     const photoId = hitPhoto(cx, cy);
     if (photoId !== null) {
       selId = null;
@@ -726,7 +724,6 @@ canvas.addEventListener('mousedown', e => {
       return;
     }
 
-    // 4. empty click — deselect all
     selId = null;
     selPhotoId = null;
     document.getElementById('props-sec').style.display = 'none';
@@ -736,7 +733,6 @@ canvas.addEventListener('mousedown', e => {
     render();
 
   } else {
-    // single mode
     const hit = hitTest(cx, cy);
     if (hit !== null) {
       selectText(hit);
@@ -749,11 +745,9 @@ canvas.addEventListener('mousedown', e => {
       render();
     }
   }
-});
+}
 
-canvas.addEventListener('mousemove', e => {
-  const { cx, cy } = canvasXY(e);
-
+function handlePointerMove(cx, cy) {
   if (drag.on) {
     if (drag.type === 'text') {
       const t = texts.find(x => x.id === drag.id);
@@ -805,7 +799,7 @@ canvas.addEventListener('mousemove', e => {
     return;
   }
 
-  // hover cursors
+  // hover cursors (mouse only — no-op on touch)
   if (mode === 'collage') {
     const hh = hitHandle(cx, cy);
     if (hh) { canvas.style.cursor = resizeCursor(hh.corner); return; }
@@ -815,10 +809,28 @@ canvas.addEventListener('mousemove', e => {
   } else {
     canvas.style.cursor = hitTest(cx, cy) !== null ? 'grab' : 'default';
   }
-});
+}
 
-canvas.addEventListener('mouseup',    () => { drag.on = false; drag.type = null; });
-canvas.addEventListener('mouseleave', () => { drag.on = false; drag.type = null; });
+function handlePointerUp() { drag.on = false; drag.type = null; }
+
+canvas.addEventListener('mousedown',  e => { const { cx, cy } = canvasXY(e); handlePointerDown(cx, cy); });
+canvas.addEventListener('mousemove',  e => { const { cx, cy } = canvasXY(e); handlePointerMove(cx, cy); });
+canvas.addEventListener('mouseup',    handlePointerUp);
+canvas.addEventListener('mouseleave', handlePointerUp);
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const { cx, cy } = canvasXY(e.touches[0]);
+  handlePointerDown(cx, cy);
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const { cx, cy } = canvasXY(e.touches[0]);
+  handlePointerMove(cx, cy);
+}, { passive: false });
+
+canvas.addEventListener('touchend', handlePointerUp);
 
 /* ============================================================
    Download (regular — fails on tainted canvas)
