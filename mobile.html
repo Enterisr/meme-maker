@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Meme Maker</title>
+<script>if (window.innerWidth > 900) window.location.replace('index.html');</script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&family=Frank+Ruhl+Libre:wght@700;900&family=Heebo:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="mobile-layout.css">
+</head>
+<body data-mobile="true">
+
+<!-- CANVAS — sticky at top, always visible -->
+<div id="main">
+  <div id="canvas-wrap">
+    <canvas id="canvas" width="800" height="500"></canvas>
+    <div id="placeholder-msg">
+      <span>🖼️</span>
+      Upload an image to start
+    </div>
+  </div>
+</div>
+
+<!-- SCROLLABLE CONTROLS -->
+<div id="controls-panel">
+
+  <div class="mode-tabs">
+    <button id="tab-single" class="active" onclick="setMode('single')">🖼 Single Image</button>
+    <button id="tab-collage" onclick="setMode('collage')">🗃 Collage</button>
+  </div>
+
+  <!-- ===== SINGLE MODE ===== -->
+  <div id="single-sections">
+    <!-- Caption bars — collapsible, closed by default -->
+    <div class="sec" id="caption-sec" style="display:none">
+      <div class="sec-title coll-title" onclick="toggleSec(this)">Caption Bars <span class="chev">▾</span></div>
+      <div class="sec-body">
+        <div>
+          <label class="lbl">Top Text</label>
+          <textarea id="cap-top" oninput="render()" placeholder="Leave empty to skip"></textarea>
+        </div>
+        <div class="row">
+          <label class="lbl">BG:</label>
+          <input type="color" id="cap-top-bg" value="#ffffff" oninput="render()">
+          <label class="lbl">Text:</label>
+          <input type="color" id="cap-top-fg" value="#000000" oninput="render()">
+        </div>
+        <div class="sep"></div>
+        <div>
+          <label class="lbl">Bottom Text</label>
+          <textarea id="cap-bot" oninput="render()" placeholder="Leave empty to skip"></textarea>
+        </div>
+        <div class="row">
+          <label class="lbl">BG:</label>
+          <input type="color" id="cap-bot-bg" value="#ffffff" oninput="render()">
+          <label class="lbl">Text:</label>
+          <input type="color" id="cap-bot-fg" value="#000000" oninput="render()">
+        </div>
+        <div class="sep"></div>
+        <div class="range-row">
+          <div class="range-label">
+            <span>Bar Font Size</span>
+            <span id="cap-size-val">42px</span>
+          </div>
+          <input type="range" id="cap-size" min="16" max="90" value="42"
+            oninput="document.getElementById('cap-size-val').textContent=this.value+'px';render()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== COLLAGE MODE ===== -->
+  <div id="collage-sections" style="display:none">
+
+    <!-- Canvas size — collapsible, closed by default -->
+    <div class="sec">
+      <div class="sec-title coll-title" onclick="toggleSec(this)">Canvas Size &amp; BG <span class="chev">▾</span></div>
+      <div class="sec-body">
+        <div class="row">
+          <label class="lbl">BG:</label>
+          <input type="color" id="col-bg" value="#ffffff" oninput="bgColor=this.value;render()">
+          <span style="flex:1"></span>
+          <div class="col" style="align-items:center">
+            <label class="lbl" style="text-align:center">W</label>
+            <input type="number" id="col-w" value="1080" min="100" max="4000"
+              onchange="colW=Math.max(100,+this.value||1080);this.value=colW;render()">
+          </div>
+          <span style="color:#555;align-self:flex-end;padding-bottom:6px">×</span>
+          <div class="col" style="align-items:center">
+            <label class="lbl" style="text-align:center">H</label>
+            <input type="number" id="col-h" value="1080" min="100" max="4000"
+              onchange="colH=Math.max(100,+this.value||1080);this.value=colH;render()">
+          </div>
+        </div>
+        <div class="preset-row">
+          <button onclick="setColSize(1080,1080)">1:1</button>
+          <button onclick="setColSize(1280,720)">16:9</button>
+          <button onclick="setColSize(1200,900)">4:3</button>
+          <button onclick="setColSize(1080,1920)">9:16</button>
+          <button onclick="setColSize(900,1200)">3:4</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add photo — compact single row -->
+    <div class="sec">
+      <div class="sec-title">Add Photo</div>
+      <div id="col-drop-zone" class="drop-zone compact-drop">
+        <span class="icon">📂</span> Tap to add photos
+      </div>
+      <div class="url-row">
+        <input type="text" id="photo-url" placeholder="https://...image.jpg" style="direction:ltr">
+        <button class="pri" onclick="addPhotoFromURL()">Load URL</button>
+      </div>
+    </div>
+
+    <!-- Photo list -->
+    <div class="sec" id="photos-sec" style="display:none">
+      <div class="sec-title">Photos — tap to select</div>
+      <div id="photo-list"></div>
+    </div>
+
+    <!-- Selected photo props -->
+    <div class="sec" id="photo-props-sec" style="display:none">
+      <div class="sec-title">Edit Selected Photo</div>
+      <div class="four-grid">
+        <div class="col">
+          <label class="lbl">X</label>
+          <input type="number" id="pp-x" oninput="setPhotoProp('x',+this.value);render()">
+        </div>
+        <div class="col">
+          <label class="lbl">Y</label>
+          <input type="number" id="pp-y" oninput="setPhotoProp('y',+this.value);render()">
+        </div>
+        <div class="col">
+          <label class="lbl">W</label>
+          <input type="number" id="pp-w" oninput="setPhotoProp('w',Math.max(10,+this.value));render()">
+        </div>
+        <div class="col">
+          <label class="lbl">H</label>
+          <input type="number" id="pp-h" oninput="setPhotoProp('h',Math.max(10,+this.value));render()">
+        </div>
+      </div>
+      <div class="row">
+        <button class="sm" onclick="fitPhotoToCanvas()">📐 Fill</button>
+        <button class="sm" onclick="resetPhotoSize()">↩ Reset</button>
+        <button class="sm" onclick="bringForward()">⬆ Fwd</button>
+        <button class="sm" onclick="sendBack()">⬇ Back</button>
+        <button class="red" onclick="deleteSelectedPhoto()">🗑</button>
+      </div>
+      <button id="btn-mirror-photo" onclick="togglePhotoMirror()" style="width:100%">↔ Mirror Photo</button>
+    </div>
+  </div>
+
+  <!-- ===== ADD CAPTION (always visible) ===== -->
+  <div class="sec">
+    <div class="sec-title">Add Caption</div>
+    <textarea id="new-text" placeholder="Type here..."></textarea>
+    <button class="style-tog" onclick="toggleEl('mob-add-style', this)">⚙ Style ▾</button>
+    <div id="mob-add-style">
+      <div class="row">
+        <div class="col" style="flex:1">
+          <label class="lbl">Font</label>
+          <select id="new-font">
+            <option value="Rubik">Rubik (Recommended)</option>
+            <option value="Heebo">Heebo</option>
+            <option value="Frank Ruhl Libre">Frank Ruhl Libre</option>
+            <option value="Impact">Impact</option>
+            <option value="Arial Black">Arial Black</option>
+          </select>
+        </div>
+        <div class="col">
+          <label class="lbl">Size</label>
+          <input type="number" id="new-size" value="60" min="10" max="400">
+        </div>
+      </div>
+      <div class="row">
+        <label class="lbl">Color:</label>
+        <input type="color" id="new-color" value="#ffffff">
+        <label class="lbl">Stroke:</label>
+        <input type="color" id="new-stroke" value="#000000">
+        <div class="col" style="flex:1">
+          <label class="lbl">Stroke W</label>
+          <input type="number" id="new-sw" value="4" min="0" max="30">
+        </div>
+      </div>
+    </div>
+    <button class="pri" onclick="addText()" style="width:100%">+ Add Caption</button>
+  </div>
+
+  <!-- Caption list -->
+  <div class="sec" id="texts-sec" style="display:none">
+    <div class="sec-title">Captions — tap to select</div>
+    <div id="text-list"></div>
+  </div>
+
+  <!-- Edit selected caption (tapping canvas auto-scrolls here) -->
+  <div class="sec" id="props-sec" style="display:none">
+    <div class="sec-title">Edit Caption</div>
+    <textarea id="p-text" oninput="setProp('text',this.value)"></textarea>
+    <div class="row">
+      <div class="col" style="flex:1">
+        <label class="lbl">Font</label>
+        <select id="p-font" onchange="setProp('font',this.value)">
+          <option value="Rubik">Rubik</option>
+          <option value="Heebo">Heebo</option>
+          <option value="Frank Ruhl Libre">Frank Ruhl Libre</option>
+          <option value="Impact">Impact</option>
+          <option value="Arial Black">Arial Black</option>
+        </select>
+      </div>
+      <div class="col">
+        <label class="lbl">Size</label>
+        <input type="number" id="p-size" min="10" max="400" oninput="setProp('size',+this.value)">
+      </div>
+    </div>
+    <div class="row">
+      <label class="lbl">Color:</label>
+      <input type="color" id="p-color" oninput="setProp('color',this.value)">
+      <label class="lbl">Stroke:</label>
+      <input type="color" id="p-stroke-color" oninput="setProp('strokeColor',this.value)">
+    </div>
+    <div class="range-row">
+      <div class="range-label">
+        <span>Stroke Width</span><span id="p-sw-val">4px</span>
+      </div>
+      <input type="range" id="p-sw" min="0" max="30"
+        oninput="setProp('strokeWidth',+this.value);document.getElementById('p-sw-val').textContent=this.value+'px'">
+    </div>
+    <div class="sep"></div>
+    <div class="row" style="justify-content:space-between">
+      <label class="lbl">Align:</label>
+      <div class="align-group">
+        <button id="al-r" onclick="setProp('align','right');highlightAlign('r')">⟸</button>
+        <button id="al-c" onclick="setProp('align','center');highlightAlign('c')" class="active">⟺</button>
+        <button id="al-l" onclick="setProp('align','left');highlightAlign('l')">⟹</button>
+      </div>
+    </div>
+    <div class="row">
+      <button id="btn-bold"   onclick="toggleProp('bold')"   style="flex:1">B Bold</button>
+      <button id="btn-shadow" onclick="toggleProp('shadow')" style="flex:1">💡 Shadow</button>
+      <button id="btn-upper"  onclick="toggleProp('upper')"  style="flex:1">AA Upper</button>
+    </div>
+    <button class="red" onclick="deleteSelected()" style="align-self:flex-start">🗑 Delete</button>
+  </div>
+
+  <!-- Image upload (compact, bottom of controls) -->
+  <div class="sec" id="img-upload-sec">
+    <div id="drop-zone" class="drop-zone compact-drop">
+      <span class="icon">📂</span> Upload / Change Image
+    </div>
+    <div id="img-controls" style="display:none">
+      <button id="btn-mirror-img" onclick="toggleImgMirror()" style="width:100%">↔ Mirror Image</button>
+    </div>
+  </div>
+
+  <!-- Save -->
+  <div class="sec">
+    <button class="grn" onclick="screenshotSave()" style="width:100%">⬇ Save Image</button>
+  </div>
+
+</div><!-- #controls-panel -->
+
+<!-- Mobile bottom edit bar (canvas stays visible at top while this is open) -->
+<div id="mobile-edit-bar">
+  <div class="meb-header">
+    <span class="meb-title">Edit Caption</span>
+    <button class="meb-done" onclick="closeMobileEditBar()">Done ✓</button>
+  </div>
+  <textarea id="mobile-text-input" oninput="syncMobileText()" placeholder="Type here..."></textarea>
+  <button class="mobile-style-btn" onclick="toggleMobileStyle()">⚙ Style ▾</button>
+  <div id="mobile-style-panel">
+    <div class="row">
+      <div class="col" style="flex:1">
+        <label class="lbl">Font</label>
+        <select id="m-font" onchange="setProp('font',this.value)">
+          <option value="Rubik">Rubik</option>
+          <option value="Heebo">Heebo</option>
+          <option value="Frank Ruhl Libre">Frank Ruhl Libre</option>
+          <option value="Impact">Impact</option>
+          <option value="Arial Black">Arial Black</option>
+        </select>
+      </div>
+      <div class="col">
+        <label class="lbl">Size</label>
+        <input type="number" id="m-size" min="10" max="400" oninput="setProp('size',+this.value)">
+      </div>
+    </div>
+    <div class="row">
+      <label class="lbl">Color:</label>
+      <input type="color" id="m-color" oninput="setProp('color',this.value)">
+      <label class="lbl">Stroke:</label>
+      <input type="color" id="m-stroke-color" oninput="setProp('strokeColor',this.value)">
+      <div class="col" style="flex:1">
+        <label class="lbl">Stroke W</label>
+        <input type="number" id="m-sw" min="0" max="30" oninput="setProp('strokeWidth',+this.value)">
+      </div>
+    </div>
+    <div class="row">
+      <button id="m-btn-bold"   onclick="toggleProp('bold');syncMobileStyleBtns()"   style="flex:1">B Bold</button>
+      <button id="m-btn-shadow" onclick="toggleProp('shadow');syncMobileStyleBtns()" style="flex:1">💡 Shadow</button>
+      <button id="m-btn-upper"  onclick="toggleProp('upper');syncMobileStyleBtns()"  style="flex:1">AA Upper</button>
+    </div>
+  </div>
+</div>
+
+<!-- add-caption-style stub so app.js toggleEl calls don't error on mobile.html -->
+<div id="add-caption-style" style="display:none"></div>
+
+<input type="file" id="file-input" accept="image/*" style="display:none">
+<input type="file" id="photo-file-input" accept="image/*" multiple style="display:none">
+
+<script src="app.js"></script>
+</body>
+</html>

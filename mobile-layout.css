@@ -1,0 +1,223 @@
+/* ============================================================
+   Mobile layout — overrides desktop style.css
+   Canvas sticky at top, controls scroll below
+   ============================================================ */
+
+body {
+  display: block;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ── Canvas: sticky at top, always visible ─────────────────── */
+#main {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: #0e0e0e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px;
+  height: 40vh;
+  box-shadow: 0 2px 12px rgba(0,0,0,.6);
+  /* reset desktop flex properties */
+  order: 0;
+  flex: none;
+}
+
+#canvas-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,.7);
+}
+
+#placeholder-msg {
+  position: absolute;
+  color: #333;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+#placeholder-msg span { display: block; font-size: 32px; margin-bottom: 4px; }
+
+/* Hide desktop sidebar — we use #controls-panel instead */
+#sidebar { display: none !important; }
+
+/* ── Scrollable controls panel ─────────────────────────────── */
+#controls-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 10px 90px;
+}
+
+/* ── Sections ───────────────────────────────────────────────── */
+.sec {
+  background: #252525;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sec-title {
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #666;
+}
+
+/* Collapsible section headers */
+.coll-title {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.chev { font-size: 10px; color: #555; }
+.sec-body { display: none; flex-direction: column; gap: 8px; }
+.sec.open .sec-body { display: flex; }
+
+/* ── Style toggle buttons ───────────────────────────────────── */
+.style-tog {
+  background: #2a2a2a;
+  color: #888;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  min-height: 0;
+  width: 100%;
+}
+
+#mob-add-style { display: none; flex-direction: column; gap: 8px; }
+#mob-add-style.open { display: flex; }
+
+/* ── Compact drop zone ──────────────────────────────────────── */
+.compact-drop {
+  padding: 10px 14px;
+  border: 1px solid #383838;
+  border-radius: 6px;
+  font-size: 14px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.compact-drop:hover, .compact-drop.over {
+  border-color: #4a9eff;
+  color: #4a9eff;
+  background: rgba(74,158,255,.04);
+}
+.compact-drop .icon { font-size: 18px; display: inline; margin: 0; }
+
+/* ── Photo props grid ───────────────────────────────────────── */
+.four-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 6px;
+}
+.four-grid .col { width: 100%; }
+.four-grid input[type=number] { width: 100%; }
+
+/* ── Bigger tap targets ─────────────────────────────────────── */
+button {
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+button.sm   { min-height: 40px; padding: 8px 10px;  font-size: 12px; }
+button.grn  { min-height: 52px; padding: 13px;       font-size: 16px; }
+button.red  { min-height: 40px; padding: 8px 12px;  font-size: 13px; }
+button.pri  { min-height: 44px; }
+
+.mode-tabs button   { min-height: 44px; padding: 10px 6px; font-size: 12px; }
+.align-group button { min-height: 44px; }
+.preset-row button  { min-height: 38px; font-size: 12px; }
+
+/* ── Inputs: prevent iOS zoom ───────────────────────────────── */
+input[type=text],
+input[type=number],
+select,
+textarea { font-size: 16px; padding: 10px 12px; }
+
+input[type=number] { width: 72px; }
+textarea           { min-height: 68px; }
+input[type=color]  { width: 44px; height: 40px; }
+input[type=range]  { width: 100%; accent-color: #4a9eff; }
+
+.url-row { display: flex; gap: 6px; align-items: stretch; }
+.url-row input  { flex: 1; }
+.url-row button { min-height: 44px; }
+
+/* ── Mobile bottom edit bar ─────────────────────────────────── */
+/* Canvas is sticky at top so this bar NEVER covers the canvas  */
+#mobile-edit-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #1a1a1a;
+  border-top: 2px solid #4a9eff;
+  padding: 12px 14px 24px;
+  z-index: 200;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 55vh;
+  overflow-y: auto;
+  box-shadow: 0 -6px 32px rgba(0,0,0,.75);
+}
+#mobile-edit-bar.open { display: flex; }
+
+.meb-header { display: flex; justify-content: space-between; align-items: center; }
+.meb-title  { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .1em; color: #666; }
+.meb-done {
+  background: #1d7a45; color: #fff;
+  border: none; border-radius: 6px;
+  padding: 8px 20px; font-size: 14px; font-weight: 700;
+  cursor: pointer; min-height: 0;
+}
+
+#mobile-text-input {
+  width: 100%; min-height: 72px;
+  font-size: 16px; resize: none;
+  background: #111; border: 1px solid #4a9eff;
+  border-radius: 6px; color: #eee;
+  padding: 10px; font-family: 'Rubik', sans-serif;
+  line-height: 1.5; direction: rtl; outline: none;
+}
+
+.mobile-style-btn {
+  background: #252525; color: #888;
+  border: 1px solid #333; border-radius: 6px;
+  padding: 9px 14px; font-size: 13px; font-weight: 700;
+  cursor: pointer; text-align: left; min-height: 0; width: 100%;
+}
+#mobile-style-panel               { display: none; flex-direction: column; gap: 8px; }
+#mobile-style-panel.open          { display: flex; }
+#mobile-style-panel input[type=number] { width: 72px; }

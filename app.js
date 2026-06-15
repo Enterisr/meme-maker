@@ -625,8 +625,12 @@ function selectText(id) {
   highlightAlign(t.align === 'right' ? 'r' : t.align === 'left' ? 'l' : 'c');
 
   if (window.innerWidth <= 768) {
-    document.getElementById('props-sec').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => document.getElementById('p-text').focus(), 300);
+    if (document.body.dataset.mobile) {
+      openMobileEditBar(t); // canvas is sticky at top — bar won't cover it
+    } else {
+      document.getElementById('props-sec').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => document.getElementById('p-text').focus(), 300);
+    }
   }
 
   refreshList();
@@ -1064,6 +1068,13 @@ function toggleMobileSec(titleEl) {
   if (chevron) chevron.textContent = sec.classList.contains('open') ? '▴' : '▾';
 }
 
+function toggleSec(titleEl) {
+  const sec = titleEl.closest('.sec');
+  sec.classList.toggle('open');
+  const chev = titleEl.querySelector('.chev');
+  if (chev) chev.textContent = sec.classList.contains('open') ? '▴' : '▾';
+}
+
 function toggleEl(id, btn) {
   const el   = document.getElementById(id);
   const open = el.classList.toggle('open');
@@ -1076,6 +1087,9 @@ function toggleEl(id, btn) {
    Mobile layout adjustment — move image upload below canvas
    ============================================================ */
 function adjustMobileLayout() {
+  // mobile.html has its own layout — skip
+  if (document.body.dataset.mobile) return;
+
   const imgSec = document.getElementById('img-upload-sec');
   const main   = document.getElementById('main');
   if (!imgSec || !main) return;
@@ -1085,7 +1099,6 @@ function adjustMobileLayout() {
       document.body.insertBefore(imgSec, main.nextSibling);
     }
   } else {
-    // Restore into single-sections on desktop if it was moved
     const singleSec = document.getElementById('single-sections');
     if (singleSec && imgSec.parentElement !== singleSec) {
       singleSec.insertBefore(imgSec, singleSec.firstChild);
